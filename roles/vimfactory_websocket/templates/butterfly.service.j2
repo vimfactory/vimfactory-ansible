@@ -1,0 +1,11 @@
+[Unit]
+Description=Butterfly Terminal Server
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+User={{ appuser }}
+Group={{ appgroup }}
+ExecStart={{ project_root }}/.pyenv/shims/butterfly.server.py --host=0.0.0.0 --login=False --unsecure --cmd={{ app_root }}/vimfactory-websocket/bin/connection.sh
+
+[Install]
+WantedBy=multi-user.target

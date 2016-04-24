@@ -1,0 +1,4 @@
+app_repo: git@github.com:atp-stat/atp-stat.git
+app_dir: /home/atp-stat/atp-stat
+app_owner: atp-stat
+app_group: atp-stat

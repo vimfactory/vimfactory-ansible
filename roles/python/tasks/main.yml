@@ -1,0 +1,16 @@
+- name: Install pyenv
+  sudo_user: vimfactory
+  shell: "curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash"
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+ 
+- name: Install dependent packages of python
+  yum: name={{ item }} enablerepo=epel state=latest
+  with_items:
+    - openssl-devel
+    - zlib-devel
+    - patch
+
+- name: Install python by pyenv
+  sudo_user: vimfactory
+  shell: "source /home/vimfactory/.bash_profile && pyenv install -s 2.7.10  && pyenv rehash && pyenv global 2.7.10"

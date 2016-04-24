@@ -1,0 +1,8 @@
+- name: Install memcached
+  yum: name={{ item }} enablerepo=epel state=latest
+  with_items:
+    - memcached
+    - cyrus-sasl-devel
+
+- name: memcached should be starting
+  service: name=memcached state=started enabled=yes

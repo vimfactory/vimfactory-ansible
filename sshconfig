@@ -1,0 +1,33 @@
+# development config
+Host proxy.vimfactory-development
+    HostName 192.168.33.100
+    User deploy
+Host app.vimfactory-development
+    HostName 192.168.33.100
+    User deploy
+Host websocket.vimfactory-development
+    HostName 192.168.33.100
+    User deploy
+Host container.vimfactory-development
+    HostName 192.168.33.100
+    User deploy
+Host hobby.vimfactory-development
+    HostName 192.168.33.100
+    User deploy
+
+# production config
+Host proxy.vimfactory-production
+    HostName vimfactory.com
+    User deploy
+Host app.vimfactory-production
+    HostName vimfactory.com
+    User deploy
+Host websocket.vimfactory-production
+    HostName vimfactory.com
+    User deploy
+Host container.vimfactory-production
+    HostName vimfactory.com
+    User deploy
+Host hobby.vimfactory-production
+    HostName vimfactory.com
+    User deploy

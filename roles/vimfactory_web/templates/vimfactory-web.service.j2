@@ -1,0 +1,14 @@
+[Unit]
+Description=Vimfactory Application(Ruby)
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+PIDFile={{ app_root }}/{{ web_repository_name }}/vimfactory-web.9292.pid
+User={{ appuser }}
+Group={{ appgroup }}
+WorkingDirectory={{ app_root }}/{{ web_repository_name }}
+ExecStart=/usr/local/bin/bundle exec thin start -C config/thin/thin.yml
+
+[Install]
+WantedBy=multi-user.target

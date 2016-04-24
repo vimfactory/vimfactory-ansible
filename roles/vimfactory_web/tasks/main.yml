@@ -1,0 +1,78 @@
+- name: Make directories
+  file: path={{ app_root }} state=directory owner={{ appuser }} group={{ appgroup }}
+
+- name: Make directories
+  file:
+    path={{ project_root }}/{{ item }} 
+    state=directory
+    owner={{ appuser }}
+    group={{ appgroup }}
+    mode=0775
+  with_items:
+    - vimstorage/default/plugin
+    - app
+
+- name: Change attribute vimstorage
+  file: path={{ project_root }}/vimstorage state=directory mode="g+s" recurse=yes
+
+- name: Set vim plugin file
+  copy: src={{ item }} dest={{ project_root }}/vimstorage/default/plugin
+  with_items:
+    - endwise.vim
+    - surround.vim
+    - yankring.vim
+
+- name: Checkout vimfactory_web
+  git:
+    repo={{ git_repository_url }}/{{ web_repository_name }}.git
+    dest={{ app_root }}/{{ web_repository_name }}
+    executable=/usr/local/bin/git
+    accept_hostkey=yes
+    version={{ vimfactory_web_version }}
+  notify:
+   - Restart vimfactory-web
+
+- name: Change attribute
+  file: path={{ app_root }}/{{ web_repository_name }} state=directory recurse=yes owner={{ appuser }} group={{ appgroup }}
+
+- name: Set thin config (config/thin/thin.yml)
+  template: src=thin.yml.j2 dest={{ app_root }}/{{ web_repository_name }}/config/thin/thin.yml owner={{ appuser }} group={{ appgroup }}
+
+- name: Execute 'bundle install'
+  sudo_user: "{{ appuser }}"
+  command: /usr/local/bin/bundle install --path=vendor/bundle chdir={{ app_root }}/{{ web_repository_name }}
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Execute 'bower install'
+  sudo_user: "{{ appuser }}"
+  command: bower install chdir={{ app_root }}/{{ web_repository_name }}
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Make default vimrc
+  sudo_user: "{{ appuser }}"
+  command: /usr/local/bin/bundle exec rake make_default_vimrc chdir={{ app_root }}/{{ web_repository_name }}
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Compile coffee scripts
+  sudo_user: "{{ appuser }}"
+  command: /usr/local/bin/bundle exec rake compile_coffee_script chdir={{ app_root }}/{{ web_repository_name }}
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Compile sass
+  sudo_user: "{{ appuser }}"
+  command: /usr/local/bin/bundle exec rake compile_sass chdir={{ app_root }}/{{ web_repository_name }}
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Set serivice file
+  template: src=vimfactory-web.service.j2 dest=/etc/systemd/system/{{ web_repository_name }}.service owner=root group=root mode=0644
+
+- name: Exec daemon-reload
+  command: systemctl daemon-reload
+
+- name: vimfactory-web should be started
+  service: name={{ web_repository_name }} enabled=yes state=started

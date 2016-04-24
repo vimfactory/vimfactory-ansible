@@ -1,0 +1,15 @@
+[Unit]
+Description=Atp-Stat Application(Ruby)
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+EnvironmentFile=/etc/sysconfig/atp-stat
+PIDFile={{ app_dir }}/atp-stat.pid
+User={{ app_owner }}
+Group={{ app_group }}
+WorkingDirectory={{ app_dir }}
+ExecStart=/usr/local/bin/bundle exec puma -C {{ app_dir }}/config/puma.rb 
+
+[Install]
+WantedBy=multi-user.target

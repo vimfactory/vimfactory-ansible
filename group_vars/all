@@ -1,0 +1,9 @@
+appuser: vimfactory
+appgroup: vimfactory
+project_root: '/home/vimfactory'
+app_root: '/home/vimfactory/app'
+docker_image_name: mosuke5/vimonly
+web_repository_name: vimfactory-web
+websocket_repository_name: vimfactory-websocket
+batch_repository_name: vimfactory-batch
+git_repository_url: git@gitlab.com:vimfactory

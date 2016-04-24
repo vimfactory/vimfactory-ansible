@@ -1,0 +1,3 @@
+---
+- name: restart atp-stat
+  service: name=atp-stat state=restarted

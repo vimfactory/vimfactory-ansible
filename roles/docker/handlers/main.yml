@@ -1,0 +1,7 @@
+---
+# MEMO: commandアクション以外でできないだろうか
+- name: Exec systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: Restart docker
+  service: name=docker state=restarted

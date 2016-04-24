@@ -1,0 +1,3 @@
+---
+- name: Restart vimfactory-web
+  service: name=vimfactory-web state=restarted

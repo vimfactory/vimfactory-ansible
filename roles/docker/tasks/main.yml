@@ -1,0 +1,26 @@
+- name: Install Docker
+  yum: name=docker enablerepo=epel state=latest
+
+- name: Add docker group
+  group: name=docker
+
+- name: Set docker config
+  template: src={{ item }}.j2 dest=/etc/systemd/system/{{ item }} backup=yes
+  with_items:
+    - docker.service
+    - docker.socket
+  notify: 
+    - Exec systemctl daemon-reload
+    - Restart docker
+
+- name: Exec daemon-reload
+  command: systemctl daemon-reload
+
+- name: Start docker
+  service: name=docker enabled=yes state=started
+
+- name: Docker pull
+  command: docker pull {{ docker_image_name }}
+  sudo: no
+  environment:
+    DOCKER_HOST: "tcp://{{ inventory_hostname }}:4243"

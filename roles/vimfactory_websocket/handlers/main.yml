@@ -1,0 +1,6 @@
+---
+- name: Exec systemctl daemon-reload
+  command: systemctl daemon-reload
+
+- name: Restart butterfly
+  service: name=butterfly state=restarted

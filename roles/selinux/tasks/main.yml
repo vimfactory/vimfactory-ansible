@@ -1,0 +1,8 @@
+- name: Install libselinux-python
+  yum: name=libselinux-python state=latest
+
+- name: Permissive SELinux
+  selinux: policy=targeted state=permissive
+
+- name: Disable SELinux
+  selinux: state=disabled

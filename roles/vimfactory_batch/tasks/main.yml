@@ -1,0 +1,21 @@
+- name: Make directories
+  file: path={{ app_root }} state=directory owner={{ appuser }} group={{ appgroup }}
+
+- name: Checkout vimfactory_batch
+  git: repo={{ git_repository_url }}/{{ batch_repository_name }}.git dest={{ app_root }}/{{ batch_repository_name }} executable=/usr/local/bin/git accept_hostkey=yes version=master
+
+- name: Change attribute
+  file: path={{ app_root }}/{{ batch_repository_name }} state=directory recurse=yes owner={{ appuser }} group={{ appgroup }}
+
+- name: Execute 'bundle install'
+  sudo_user: "{{ appuser }}"
+  command: /usr/local/bin/bundle install --path=vendor/bundle chdir={{ app_root }}/{{ batch_repository_name }}
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Set crontab
+  cron: name="delete container" \
+        user="{{ appuser }}" \
+        minute="*/15" \
+        hour="*" \
+        job='export PATH=$PATH:/usr/local/bin && cd {{ app_root }}/{{ batch_repository_name }} && bundle exec ruby del_container.rb -H {{ inventory_hostname }} -P 4243 -s 3600 -p {{ project_root }}/vimstorage >> del_container.log 2>&1'

@@ -1,0 +1,49 @@
+apikey = "{{ mackerel_api_key }}"
+
+roles = [
+  "vimfactory:proxy",
+  "vimfactory:app",
+  "vimfactory:websocket",
+  "vimfactory:vim",
+]
+
+#
+# mackerel-agent monitoring
+#
+diagnostic = true
+
+#
+# log monitoring
+#
+[plugin.checks.nginx.error_log]
+command = "/usr/local/bin/check-log --file /var/log/nginx/error.log --pattern error --return"
+
+[plugin.checks.thin.log]
+command = "/usr/local/bin/check-log --file /home/vimfactory/app/vimfactory-web/logs/thin.9292.log --pattern ERROR --return"
+
+[plugin.checks.docker_connect.log]
+command = "/usr/local/bin/check-log --file /home/vimfactory/app/vimfactory-websocket/logs/docker_connect.log --pattern ERROR --return"
+
+[plugin.checks.del_container.log]
+command = "/usr/local/bin/check-log --file /home/vimfactory/app/vimfactory-batch/del_container.log --pattern ERROR --return"
+
+#
+# process monitoring
+#
+[plugin.checks.nginx.master]
+command = "/usr/local/bin/check-procs --pattern nginx -C 1 --user root"
+
+[plugin.checks.nginx.worker]
+command = "/usr/local/bin/check-procs --pattern nginx -C 1 --user nginx"
+
+[plugin.checks.thin]
+command = "/usr/local/bin/check-procs --pattern 'thin server' -C 1 --user vimfact+"
+
+[plugin.checks.docker]
+command = "/usr/local/bin/check-procs --pattern docker -C 1 --user root"
+
+[plugin.checks.memcached]
+command = "/usr/local/bin/check-procs --pattern memcached -C 1 --user memcach+"
+
+[plugin.checks.butterfly]
+command = "/usr/local/bin/check-procs --pattern butterfly -C 1 --user vimfact+"

@@ -1,0 +1,62 @@
+- name: Install dependent packages of butterfly
+  yum: name={{ item }} enablerepo=epel state=latest
+  with_items:
+    - libffi-devel
+    - python-devel
+
+- name: Install butterfly from my repository
+  sudo_user: "{{ appuser }}"
+  pip:
+    chdir='/home/vimfactory'
+    executable='/home/vimfactory/.pyenv/shims/pip'
+    name='git+https://github.com/vimfactory/butterfly.git#egg=butterfly'
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Checkout vimfactory_websocket
+  git: 
+    repo={{ git_repository_url }}/{{ websocket_repository_name }}.git
+    dest={{ app_root }}/{{ websocket_repository_name }}
+    executable=/usr/local/bin/git
+    accept_hostkey=yes
+    version=master
+
+- name: Change attribute
+  file:
+    path={{ app_root }}/{{ websocket_repository_name }}
+    state=directory
+    recurse=yes
+    owner={{ appuser }}
+    group={{ appgroup }}
+
+- name: Set config file
+  template:
+    src=connection_sh.conf.j2
+    dest={{ app_root }}/{{ websocket_repository_name }}/config/connection_sh.conf
+    owner={{ appuser }}
+    group={{ appgroup }}
+
+- name: Execute 'bundle install'
+  sudo_user: "{{ appuser }}"
+  command: /usr/local/bin/bundle install --path=vendor/bundle chdir={{ app_root }}/{{ websocket_repository_name }}
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Set serivice file
+  template:
+    src={{ item.src }}
+    dest=/etc/systemd/system/{{ item.dest }}
+    owner=root
+    group=root
+    mode=0644
+  with_items:
+    - { src: butterfly.service.j2, dest: butterfly.service }
+  notify: 
+    - Exec systemctl daemon-reload
+    - Restart butterfly
+
+- name: Exec daemon-reload
+  command: systemctl daemon-reload
+
+- name: Butterfly should be started
+  service: name=butterfly enabled=yes state=started

@@ -1,0 +1,4 @@
+env: development
+vimfactory_web_version: master
+vimfactory_websocket_version: master
+vimfactory_batch_version: master

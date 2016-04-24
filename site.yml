@@ -1,0 +1,56 @@
+---
+
+- name: Exec common role
+  hosts: all
+  sudo: yes
+  vars_files:
+    - secrets.yml
+  roles:
+    - common
+    - selinux
+    - ntp
+    - { role: mackerel, when: "env == 'production'" }
+
+- name: Setup proxy server
+  hosts: proxy
+  sudo: yes
+  roles:
+    - nginx
+    - firewalld
+
+- name: Setup application server
+  hosts: app
+  sudo: yes
+  roles:
+    - git
+    - npm
+    - bower
+    - ruby
+    - memcached
+    - vimfactory_web
+
+- name: Setup websocket server
+  hosts: websocket
+  sudo: yes
+  roles:
+    - git
+    - ruby
+    - python
+    - vimfactory_websocket
+
+- name: Setup container server
+  hosts: vim
+  sudo: yes
+  roles:
+    - docker
+    - vimfactory_batch
+
+# vimfactory本体とは関係ない趣味用
+- name: Setup hobby server
+  hosts: hobby
+  sudo: yes
+  roles:
+    - git
+    - ruby
+    - postgres
+    - atp-stat

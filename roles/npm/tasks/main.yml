@@ -1,0 +1,8 @@
+- name: Install npm
+  yum: name=npm enablerepo=epel state=latest
+
+- name: Update npm update
+  npm: name=npm version=2.5.0 global=yes
+
+- name: Install coffee-script
+  npm: name=coffee-script version=1.10.0 global=yes

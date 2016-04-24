@@ -1,0 +1,70 @@
+- name: Add appliation user
+  user: name=atp-stat password=$1$SomeSalt$gFabU8Pxg2srYE5ZhgvHx0
+
+- name: Checkout atp-stat
+  git:
+    repo={{ app_repo }}
+    dest={{ app_dir }}
+    executable=/usr/local/bin/git
+    accept_hostkey=yes
+    version=master
+  notify:
+   - restart atp-stat
+
+- name: Change attribute
+  file: path={{ app_dir }} state=directory recurse=yes owner={{ app_owner }} group={{ app_group }}
+
+- name: Execute 'bundle install'
+  become_user: atp-stat
+  command: /usr/local/bin/bundle install --path=vendor/bundle chdir=/home/atp-stat/atp-stat
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Create Database
+  command: /usr/local/bin/bundle exec rake db:create RAILS_ENV={{ env }} chdir=/home/atp-stat/atp-stat
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Exec DB Migration
+  command: /usr/local/bin/bundle exec rake db:migrate RAILS_ENV={{ env }} chdir=/home/atp-stat/atp-stat
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Compile assets file
+  command: /usr/local/bin/bundle exec rake assets:precompile RAILS_ENV={{ env }} chdir=/home/atp-stat/atp-stat
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+
+- name: Set service file
+  template: src=atp-stat.service.j2 dest=/etc/systemd/system/atp-stat.service owner=root group=root mode=0644
+
+- name: Set service env file
+  template: src=atp-stat-env.j2 dest=/etc/sysconfig/atp-stat owner=root group=root mode=0644
+
+- name: Exec daemon-reload
+  command: systemctl daemon-reload
+
+- name: atp-stat should be started
+  service: name=atp-stat enabled=yes state=started
+
+- name: Set atp-stat cron(exec job)
+  cron: name="exec job"
+        minute="*/3"
+        user="atp-stat"
+        job="export PATH=$PATH:/usr/local/bin && cd /home/atp-stat/atp-stat && /usr/local/bin/bundle exec rake atp_stat:activity:exec_job"
+
+- name: Set atp-stat cron(search new player)
+  cron: name="search new player"
+        minute="0"
+        hour="12"
+        weekday="1"
+        user="atp-stat"
+        job="export PATH=$PATH:/usr/local/bin && cd /home/atp-stat/atp-stat && /usr/local/bin/bundle exec rake atp_stat:ranking:get[1-200]"
+
+- name: Set atp-stat cron(get lastest activity)
+  cron: name="register task to get latest activity"
+        minute="0"
+        hour="13"
+        weekday="1"
+        user="atp-stat"
+        job="export PATH=$PATH:/usr/local/bin && cd /home/atp-stat/atp-stat && /usr/local/bin/bundle exec rake atp_stat:activity:register_job_latest"
