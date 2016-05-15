@@ -15,15 +15,15 @@
   register: is_ruby_installed
 
 - name: Download ruby
-  get_url: url=http://cache.ruby-lang.org/pub/ruby/2.1/ruby-2.1.5.tar.gz dest={{ project_root }}/src
+  get_url: url=http://cache.ruby-lang.org/pub/ruby/2.3/ruby-2.3.1.tar.gz dest={{ project_root }}/src
   when: is_ruby_installed | failed
 
 - name: Unpacking ruby.tar.gz
-  unarchive: src={{ project_root }}/src/ruby-2.1.5.tar.gz dest={{ project_root }}/src copy=no
+  unarchive: src={{ project_root }}/src/ruby-2.3.1.tar.gz dest={{ project_root }}/src copy=no
   when: is_ruby_installed | failed
 
 - name: Install ruby
-  command: "{{ item }} chdir={{ project_root }}/src/ruby-2.1.5"
+  command: "{{ item }} chdir={{ project_root }}/src/ruby-2.3.1"
   with_items:
     - ./configure --prefix=/usr/local
     - make
@@ -36,6 +36,6 @@
 - name: Install bundler by rubygems
   gem:
     name=bundler
-    version=1.10.2
+    version=1.12.3
     executable=/usr/local/bin/gem
     user_install=False
