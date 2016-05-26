@@ -36,6 +36,6 @@
 - name: Install bundler by rubygems
   gem:
     name=bundler
-    version=1.12.3
+    version=1.12.5
     executable=/usr/local/bin/gem
     user_install=False

@@ -16,9 +16,7 @@
 
 - name: Execute 'bundle install'
   become_user: atp-stat
-  command: /usr/local/bin/bundle install --path=vendor/bundle chdir=/home/atp-stat/atp-stat
-  environment:
-    PATH: "/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin"
+  bundler: state=present chdir={{ app_dir }} executable=/usr/local/bin/bundle
 
 - name: Create Database
   command: /usr/local/bin/bundle exec rake db:create RAILS_ENV={{ env }} chdir=/home/atp-stat/atp-stat
