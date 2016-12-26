@@ -4,5 +4,8 @@
 - name: Add http port
   firewalld: zone=public service=http permanent=true state=enabled
 
+- name: Add https port
+  firewalld: zone=public service=https permanent=true state=enabled
+
 - name: Reload firewalld
   command: firewall-cmd --reload

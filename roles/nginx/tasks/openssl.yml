@@ -1,0 +1,13 @@
+- name: Check if openssl is deployed
+  become: no
+  ignore_errors: yes
+  command: ls /usr/local/src/openssl-1.0.2j/
+  register: is_openssl_installed
+
+- name: Download openssl
+  get_url: url=https://www.openssl.org/source/openssl-1.0.2j.tar.gz dest=/usr/local/src
+  when: is_openssl_installed | failed
+
+- name: Unpacking openssl.tar.gz
+  unarchive: src=/usr/local/src/openssl-1.0.2j.tar.gz dest=/usr/local/src copy=no
+  when: is_openssl_installed | failed

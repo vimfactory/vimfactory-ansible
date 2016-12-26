@@ -1,5 +1,4 @@
 ---
-
 - name: Exec common role
   hosts: all
   sudo: yes

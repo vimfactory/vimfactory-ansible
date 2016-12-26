@@ -1,0 +1,5 @@
+nginx_version: "nginx-1.11.7"
+openssl_version: "openssl-1.0.2j"
+src_path: "/usr/local/src"
+install_path: "/etc/nginx"
+ssl_path: "/etc/letsencrypt/live/vimfactory.com"
